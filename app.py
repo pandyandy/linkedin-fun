@@ -23,7 +23,7 @@ credentials = service_account.Credentials.from_service_account_info(
 
 # Logos
 keboola_logo = "/data/in/files/1112932287_logo.png"
-qr_code = "/data/in/files/1112932729_qr_code.png"
+qr_code = "/data/in/files/1112980791_qr_code.png"
 keboola_gemini = "/data/in/files/1112932549_keboola_gemini.png"
 
 keboola_logo_html = f'<div style="display: flex; justify-content: flex-end;"><img src="data:image/png;base64,{base64.b64encode(open(keboola_logo, "rb").read()).decode()}" style="width: 150px; margin-left: -10px;"></div>'
