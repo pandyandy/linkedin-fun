@@ -46,7 +46,14 @@ def generate(content):
     
     responses = model.generate_content(
         contents=f"""
-You are given a data in JSON format that contains the author's social media posts in different categories and engagement metrics for each post, including the number of likes and comments.
+You are given a data in JSON format that contains the author's social media posts in different categories and engagement metrics for each post, including the number of likes and comments, and the date of posting.
+
+These are the categories:
+- Educational (sharing knowledge and insights)
+- Promotional (products, services, or events)
+- Networking (seeking connections, collaborations)
+- News and Updates (company or industry news)
+- Inspirational (motivational content)
 
 Please analyze the data provided to identify patterns and insights that can inform the content strategy.
 
@@ -185,8 +192,7 @@ st.dataframe(data_filtered[['authorFullName',
                             'category': 'Category',
                             'commentsCount': '# of Comments',
                             'likesCount': '# of Likes',
-                            'text': 'Post',
-                            'date': 'Date',
+                            'text': 'Post'
                             },
             use_container_width=True, hide_index=True)
 
@@ -232,7 +238,7 @@ gemini_html = f'<div style="display: flex; justify-content: center;"><img src="d
 
 st.markdown(f"{gemini_html}", unsafe_allow_html=True)
 
-data_gemini = data_filtered.loc[:, ['category', 'text', 'likesCount', 'commentsCount']]
+data_gemini = data_filtered.loc[:, ['category', 'text', 'likesCount', 'commentsCount', 'date']]
 
 _, col, _ = st.columns(3)
 if selected_author != 'All':
