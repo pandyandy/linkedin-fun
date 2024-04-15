@@ -23,8 +23,8 @@ credentials = service_account.Credentials.from_service_account_info(
 
 # Logos
 keboola_logo = "/data/in/files/1112932287_logo.png"
-qr_code = "/data/in/files/1112986518_qr_code.png"
-keboola_gemini = "/data/in/files/1112932549_keboola_gemini.png"
+qr_code = "/data/in/files/1112932549_keboola_gemini.png"
+keboola_gemini = "/data/in/files/1112932729_qr_code.png"
 
 keboola_logo_html = f'<div style="display: flex; justify-content: flex-end;"><img src="data:image/png;base64,{base64.b64encode(open(keboola_logo, "rb").read()).decode()}" style="width: 150px; margin-left: -10px;"></div>'
 st.markdown(f"{keboola_logo_html}", unsafe_allow_html=True)
@@ -64,13 +64,13 @@ Data:
 
 
 # Load the data
-data = pd.read_csv('/data/in/tables/categorized_posts.csv')
-keywords = pd.read_csv('/data/in/tables/keywords.csv')
+data = pd.read_csv('/data/in/tables/linkedin_posts_categorized.csv')
+keywords = pd.read_csv('/data/in/tables/keywords_grouped.csv')
 
 # Data prep
 data.rename(columns={'result_value': 'category', 'postedAtTimestamp': 'date'}, inplace=True)
 data['date'] = pd.to_datetime(data['date'].astype(int) / 1000, unit='s')
-allowed_categories = ["self-promotion", "educative", "article reference", "product advertisement"]
+allowed_categories = ["Educational", "Promotional", "Networking", "News and Updates", "Inspirational"]
 data = data[data['category'].isin(allowed_categories) & (data['text'].str.len() >= 3)]
 
 # Sidebar
@@ -94,7 +94,14 @@ col1, col2 = st.columns(2)
 with col1: 
     selected_author = st.selectbox('Select an Author', ['All'] + author_list)
 with col2:
-    selected_category = st.multiselect('Select Categories', category_list, default=category_list)
+    selected_category = st.multiselect('Select Categories', category_list, default=category_list, 
+                                       help = """
+- Educational (sharing knowledge and insights)
+- Promotional (products, services, or events)
+- Networking (seeking connections, collaborations)
+- News and Updates (company or industry news)
+- Inspirational (motivational content)
+""")
 
 # Apply Filters
 data_filtered_all = data[data['category'].isin(selected_category)]
@@ -121,7 +128,7 @@ col2.metric("**👍🏻 Avg Likes**", f"{avg_likes:.2f}", delta=calculate_delta(
 col3.metric("**💬 Avg Comments**", f"{avg_comments:.2f}", delta=calculate_delta(avg_comments, avg_comments_all))
 
 
-col1, col2 = st.columns(2, gap='small')
+col1, col2 = st.columns([4, 3], gap='medium')
 with col1:
     # Author Engagement
     author_engagement_data = data_filtered.groupby('authorFullName').agg({'likesCount': 'mean'}).reset_index()
@@ -213,7 +220,7 @@ if selected_author != 'All':
 
 st.markdown(f"<br>**{title_text}**", unsafe_allow_html=True)
 
-wordcloud = WordCloud(width=2000, height = 500, background_color=None, mode="RGBA", colormap=colormap).generate_from_frequencies(word_freq)
+wordcloud = WordCloud(width=2000, height = 500, background_color ='black', colormap=colormap).generate_from_frequencies(word_freq)
 wordcloud_array = wordcloud.to_array()
 
 plt.figure(figsize=(10, 5), frameon=False)
