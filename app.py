@@ -23,7 +23,7 @@ credentials = service_account.Credentials.from_service_account_info(
 
 # Logos
 keboola_logo = "/data/in/files/1112932287_logo.png"
-qr_code = "/data/in/files/1112980791_qr_code.png"
+qr_code = "/data/in/files/1112985203_qr_code.png"
 keboola_gemini = "/data/in/files/1112932549_keboola_gemini.png"
 
 keboola_logo_html = f'<div style="display: flex; justify-content: flex-end;"><img src="data:image/png;base64,{base64.b64encode(open(keboola_logo, "rb").read()).decode()}" style="width: 150px; margin-left: -10px;"></div>'
@@ -121,7 +121,7 @@ col2.metric("**👍🏻 Avg Likes**", f"{avg_likes:.2f}", delta=calculate_delta(
 col3.metric("**💬 Avg Comments**", f"{avg_comments:.2f}", delta=calculate_delta(avg_comments, avg_comments_all))
 
 
-col1, col2 = st.columns([4, 3], gap='medium')
+col1, col2 = st.columns(2, gap='small')
 with col1:
     # Author Engagement
     author_engagement_data = data_filtered.groupby('authorFullName').agg({'likesCount': 'mean'}).reset_index()
