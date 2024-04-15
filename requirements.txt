@@ -1,7 +1,7 @@
 streamlit
 matplotlib
 wordcloud
-jwt
+pyjwt
 pandas
 matplotlib
 plotly
