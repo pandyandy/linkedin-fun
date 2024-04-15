@@ -216,7 +216,7 @@ st.dataframe(data_filtered[['authorFullName',
 # Wordcloud
 keywords_filtered = keywords[keywords['authorFullName'] == selected_author] if selected_author != 'All' else keywords[keywords['cnt'] > 3]
 word_freq = keywords_filtered.set_index('KEYWORD')['cnt'].to_dict()
-colormap = mcolors.ListedColormap(['#0069c8', '#85c9fe', '#ff2a2b', '#feaaab'])
+colormap = mcolors.ListedColormap(['#0069c8', '#85c9fe', '#ff2a2b', '#feaaab', '#2bb19d'])
 
 # Title
 title_text = "Keyword Frequency"
