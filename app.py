@@ -90,7 +90,7 @@ st.title('LinkedIn Profiler')
 author_list = data['authorFullName'].unique().tolist()
 category_list = data['category'].unique().tolist()
 
-col1, col2 = st.columns([1,3])
+col1, col2 = st.columns([1,2])
 with col1: 
     selected_author = st.selectbox('Select an Author', ['All'] + author_list)
 with col2:
