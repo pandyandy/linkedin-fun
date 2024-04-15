@@ -1,0 +1,10 @@
+streamlit
+matplotlib
+wordcloud
+jwt
+pandas
+matplotlib
+plotly
+google-auth
+google-cloud-aiplatform
+vertexai
