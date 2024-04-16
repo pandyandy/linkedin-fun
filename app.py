@@ -17,25 +17,19 @@ PROJECT = "keboola-ai"
 LOCATION = "us-central1"
 MODEL_NAME = "gemini-1.5-pro-preview-0409"
 
-credentials = service_account.Credentials.from_service_account_info(
+CREDENTIALS = service_account.Credentials.from_service_account_info(
     jwt.decode(st.secrets["encoded_token"], 'keboola', algorithms=["HS256"])
 )
 
-# Logos
-keboola_logo = "/data/in/files/1112932287_logo.png"
-qr_code = "/data/in/files/1112988135_qr_code.png"
-keboola_gemini = "/data/in/files/1112932549_keboola_gemini.png"
-
-keboola_logo_html = f'<div style="display: flex; justify-content: flex-end;"><img src="data:image/png;base64,{base64.b64encode(open(keboola_logo, "rb").read()).decode()}" style="width: 150px; margin-left: -10px;"></div>'
-st.markdown(f"{keboola_logo_html}", unsafe_allow_html=True)
-
+# Calculate delta for metrics
 def calculate_delta(current, overall):
     if overall == 0:
         return "N/A" if current == 0 else "∞"
     return f"{(current - overall) / overall * 100:.2f}%"
 
+# Gemini
 def generate(content):
-    vertexai.init(project=PROJECT, location=LOCATION, credentials=credentials)
+    vertexai.init(project=PROJECT, location=LOCATION, credentials=CREDENTIALS)
     model = GenerativeModel(MODEL_NAME)
 
     config = {
@@ -48,18 +42,10 @@ def generate(content):
         contents=f"""
 You are given a data in JSON format that contains the author's social media posts in different categories and engagement metrics for each post, including the number of likes and comments, and the date of posting.
 
-These are the categories:
-- Educational (sharing knowledge and insights)
-- Promotional (products, services, or events)
-- Networking (seeking connections, collaborations)
-- News and Updates (company or industry news)
-- Inspirational (motivational content)
+Analyze the data provided to identify patterns and insights that can inform the person's content strategy.
 
-Analyze the data provided to identify patterns and insights that can inform the content strategy, but be satirical, and make fun of it.
-Add slang words like to make it more funnier, also you can add lol, haha, etc.
-
-Expected outcome should be brief and include:
-– Summary of Findings: A concise report summarizing key insights and patterns from the data, including any correlations or anomalies found.
+Expected outcome should be CONCISE and include:
+– Summary of Findings: A brief report summarizing key insights and patterns from the data, including any correlations or anomalies found.
 – Actionable Recommendations: Specific, data-driven suggestions for improving the content strategy to increase overall engagement.
 
 Data: 
@@ -70,6 +56,10 @@ Data:
     )
     return "".join(response.text for response in responses)
 
+# Logos
+keboola_logo = "/data/in/files/1112932287_logo.png"
+qr_code = "/data/in/files/1112988135_qr_code.png"
+keboola_gemini = "/data/in/files/1112932549_keboola_gemini.png"
 
 # Load the data
 data = pd.read_csv('/data/in/tables/linkedin_posts_categorized.csv')
@@ -93,6 +83,9 @@ st.sidebar.markdown(f'{qr_html}', unsafe_allow_html=True)
 st.sidebar.markdown('<div style="text-align: center"><br><br><br>Get in touch with Keboola: <a href="https://bit.ly/cxo-summit-2024">https://bit.ly/cxo-summit-2024</a>#replace</div>', unsafe_allow_html=True)
 
 # Title and Filters
+keboola_logo_html = f'<div style="display: flex; justify-content: flex-end;"><img src="data:image/png;base64,{base64.b64encode(open(keboola_logo, "rb").read()).decode()}" style="width: 150px; margin-left: -10px;"></div>'
+st.markdown(f"{keboola_logo_html}", unsafe_allow_html=True)
+
 st.title('LinkedIn Profiler')
 
 author_list = data['authorFullName'].unique().tolist()
@@ -197,33 +190,14 @@ st.dataframe(data_filtered[['authorFullName',
                             },
             use_container_width=True, hide_index=True)
 
-# Post Activity Over Time
-#data_2024 = data_filtered[(data_filtered['date'].dt.year == 2023) | (data_filtered['date'].dt.year == 2024)]
-#data_2024['month_year'] = data_2024['date'].dt.to_period('M').dt.strftime('%Y-%m')
-
-#fig_posts_over_time = px.bar(
-#    data_frame=data_2024.groupby(['month_year', 'category']).size().reset_index(name='count'),
-#    x='month_year',
-#    y='count',
-#    color='category',
-#    title='Post Activity Over Time',
-#    labels={'count': '# of Posts', 'month_year': 'Date', 'category': 'Category'},
-#    height=400,
-#    color_discrete_map=category_colors
-#)
-#fig_posts_over_time.update_xaxes(dtick="M1", tickformat="%b\n%Y")
-#st.plotly_chart(fig_posts_over_time, use_container_width=True)
-
 # Wordcloud
 keywords_filtered = keywords[keywords['authorFullName'] == selected_author] if selected_author != 'All' else keywords[keywords['cnt'] > 3]
 word_freq = keywords_filtered.set_index('KEYWORD')['cnt'].to_dict()
 colormap = mcolors.ListedColormap(['#0069c8', '#85c9fe', '#ff2a2b', '#feaaab', '#2bb19d'])
 
-# Title
 title_text = "Keyword Frequency"
 if selected_author != 'All':
     title_text += f" for {selected_author}"
-
 
 st.markdown(f"<br>**{title_text}**", unsafe_allow_html=True)
 
@@ -235,8 +209,8 @@ plt.imshow(wordcloud_array, interpolation='bilinear')
 plt.axis('off')
 st.pyplot(plt)
 
+# Gemini content analysis
 gemini_html = f'<div style="display: flex; justify-content: center;"><img src="data:image/png;base64,{base64.b64encode(open(keboola_gemini, "rb").read()).decode()}" style="width: 40px; margin-top: 20px; margin-bottom: 10px;"></div>'
-
 st.markdown(f"{gemini_html}", unsafe_allow_html=True)
 
 data_gemini = data_filtered.loc[:, ['category', 'text', 'likesCount', 'commentsCount', 'date']]
