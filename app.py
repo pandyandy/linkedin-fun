@@ -55,7 +55,8 @@ These are the categories:
 - News and Updates (company or industry news)
 - Inspirational (motivational content)
 
-Please analyze the data provided to identify patterns and insights that can inform the content strategy.
+Analyze the data provided to identify patterns and insights that can inform the content strategy, but be satirical, and make fun of it.
+Add slang words like to make it more funnier, also you can add lol, haha, etc.
 
 Expected outcome should be brief and include:
 – Summary of Findings: A concise report summarizing key insights and patterns from the data, including any correlations or anomalies found.
