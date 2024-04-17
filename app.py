@@ -85,7 +85,8 @@ if selected_author != 'All':
     data_filtered = data[data['authorFullName'] == selected_author]
 else:
     data_filtered = data
-     
+
+st.markdown("####")
 # Show table
 st.dataframe(data_filtered[['authorFullName',
                             'category', 
