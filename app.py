@@ -120,7 +120,7 @@ if selected_author != 'All':
 
 st.markdown(f"<br>**{title_text}**", unsafe_allow_html=True)
 
-wordcloud = WordCloud(width=2000, height = 500, background_color=None, mode="RGBA", colormap=colormap).generate_from_frequencies(word_freq)
+wordcloud = WordCloud(width=1000, height=500, background_color=None, mode="RGBA", colormap=colormap).generate_from_frequencies(word_freq)
 wordcloud_array = wordcloud.to_array()
 
 plt.figure(figsize=(10, 5), frameon=False)
@@ -144,45 +144,27 @@ with st.expander("More data"):
     col3.metric("**💬 Avg Comments**", f"{avg_comments:.2f}", delta=calculate_delta(avg_comments, avg_comments_all))
 
 
-    col1, col2 = st.columns([2, 3], gap='medium')
-    with col1:
-        # Author Engagement
-        author_engagement_data = data_filtered.groupby('authorFullName').agg({'likesCount': 'mean'}).reset_index()
-        author_engagement_data = author_engagement_data.sort_values(by='likesCount', ascending=False).head(10)
 
-        fig_author_engagement = px.bar(
-            data_frame=author_engagement_data,
-            x='authorFullName',
-            y='likesCount',
-            title='Author Engagement',
-            labels={'likesCount': 'Avg Likes per Post', 'authorFullName': 'Author'},
-            text='likesCount'  
-        )
-        
-        fig_author_engagement.update_traces(texttemplate='%{text:.2s}', textposition='inside')
-        st.plotly_chart(fig_author_engagement, use_container_width=True)
+    # Activity Heatmap by Day and Hour
+    data_filtered['weekday'] = data_filtered['date'].dt.day_name()
+    data_filtered['hour'] = data_filtered['date'].dt.hour
+
+    heatmap_data = data_filtered.groupby(['weekday', 'hour']).size().reset_index(name='posts_count')
+
+    fig_heatmap = px.density_heatmap(
+        data_frame=heatmap_data,
+        x='hour',
+        y='weekday',
+        z='posts_count',
+        nbinsx=24,
+        category_orders={"weekday": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]},
+        title='Activity Heatmap by Day and Hour',
+        labels={'posts_count': 'Posts', 'hour': 'Hour of the Day', 'weekday': 'Day of the Week'},
+        height=400
+    )
+    fig_heatmap.update_xaxes(tickmode='linear', tick0=0, dtick=1)
+    st.plotly_chart(fig_heatmap, use_container_width=True)
     
-    with col2:
-        # Activity Heatmap by Day and Hour
-        data_filtered['weekday'] = data_filtered['date'].dt.day_name()
-        data_filtered['hour'] = data_filtered['date'].dt.hour
-
-        heatmap_data = data_filtered.groupby(['weekday', 'hour']).size().reset_index(name='posts_count')
-
-        fig_heatmap = px.density_heatmap(
-            data_frame=heatmap_data,
-            x='hour',
-            y='weekday',
-            z='posts_count',
-            nbinsx=24,
-            category_orders={"weekday": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]},
-            title='Activity Heatmap by Day and Hour',
-            labels={'posts_count': 'Posts', 'hour': 'Hour of the Day', 'weekday': 'Day of the Week'},
-            height=400
-        )
-        fig_heatmap.update_xaxes(tickmode='linear', tick0=0, dtick=1)
-        st.plotly_chart(fig_heatmap, use_container_width=True)
-       
 
 # Gemini content analysis
 gemini_html = f'<div style="display: flex; justify-content: center;"><img src="data:image/png;base64,{base64.b64encode(open(keboola_gemini, "rb").read()).decode()}" style="width: 40px; margin-top: 30px; margin-bottom: 10px;"></div>'
@@ -217,12 +199,13 @@ Data:
 {json_data}
 """
 
-st.sidebar.markdown("""
+st.markdown("""
 <div style="text-align: center;">
-    <h1>Analyze the content strategy with Gemini</h1>
-    <br><p>Choose your style:</p>
+    <h2>Analyze the content strategy with Gemini</h2>
+    <br><h1>Choose your style:</h1>
 </div>
 """, unsafe_allow_html=True)
+
 col1, col2 = st.columns(2)
 
 if selected_author != 'All':
