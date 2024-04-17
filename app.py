@@ -201,8 +201,8 @@ Data:
 
 st.markdown("""
 <div style="text-align: center;">
-    <h2>Analyze the content strategy with Gemini</h2>
-    <br><h1>Choose your style:</h1>
+    <h3>Analyze the content strategy with Gemini</h3>
+    <h4>Choose your style:</h4>
 </div>
 """, unsafe_allow_html=True)
 
