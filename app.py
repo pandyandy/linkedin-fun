@@ -11,8 +11,6 @@ from google.oauth2 import service_account
 from wordcloud import WordCloud
 from vertexai.generative_models import GenerativeModel
 
-st.set_page_config(layout='wide')
-
 PROJECT = "keboola-ai"
 LOCATION = "us-central1"
 MODEL_NAME = "gemini-1.5-pro-preview-0409"
@@ -39,18 +37,7 @@ def generate(content):
     }
     
     responses = model.generate_content(
-        contents=f"""
-You are given a data in JSON format that contains the author's social media posts in different categories and engagement metrics for each post, including the number of likes and comments, and the date of posting.
-
-Analyze the data provided to identify patterns and insights that can inform the person's content strategy.
-
-Expected outcome should be CONCISE and include:
-– Summary of Findings: A brief report summarizing key insights and patterns from the data, including any correlations or anomalies found.
-– Actionable Recommendations: Specific, data-driven suggestions for improving the content strategy to increase overall engagement.
-
-Data: 
-{content}
-""",
+        contents=content,
         generation_config=config,
         stream=True,
     )
@@ -91,91 +78,14 @@ st.title('LinkedIn Profiler')
 author_list = data['authorFullName'].unique().tolist()
 category_list = data['category'].unique().tolist()
 
-col1, col2 = st.columns([1,2])
-with col1: 
-    selected_author = st.selectbox('Select an Author', ['All'] + author_list)
-with col2:
-    selected_category = st.multiselect('Select Categories', category_list, default=category_list, 
-                                       help = """
-- Educational (sharing knowledge and insights)
-- Promotional (products, services, or events)
-- Networking (seeking connections, collaborations)
-- News and Updates (company or industry news)
-- Inspirational (motivational content)
-""")
+selected_author = st.selectbox('Select an Author', ['All'] + author_list)
 
 # Apply Filters
-data_filtered_all = data[data['category'].isin(selected_category)]
-
 if selected_author != 'All':
-    data_filtered = data[(data['category'].isin(selected_category)) & (data['authorFullName'] == selected_author)]
+    data_filtered = data[data['authorFullName'] == selected_author]
 else:
-    data_filtered = data[data['category'].isin(selected_category)]
-
-# Metrics
-st.markdown("####")
-
-total_posts = len(data_filtered)
-avg_likes = data_filtered['likesCount'].mean() if total_posts > 0 else 0
-avg_comments = data_filtered['commentsCount'].mean() if total_posts > 0 else 0
-
-total_posts_all = len(data_filtered_all)
-avg_likes_all = data_filtered_all['likesCount'].mean() if total_posts > 0 else 0
-avg_comments_all = data_filtered_all['commentsCount'].mean() if total_posts > 0 else 0
-
-_, col1, col2, col3, _ = st.columns(5)
-col1.metric("**📨 # of Posts**", total_posts)
-col2.metric("**👍🏻 Avg Likes**", f"{avg_likes:.2f}", delta=calculate_delta(avg_likes, avg_likes_all))
-col3.metric("**💬 Avg Comments**", f"{avg_comments:.2f}", delta=calculate_delta(avg_comments, avg_comments_all))
-
-
-col1, col2 = st.columns([4, 3], gap='medium')
-with col1:
-    # Author Engagement
-    author_engagement_data = data_filtered.groupby('authorFullName').agg({'likesCount': 'mean'}).reset_index()
-    author_engagement_data = author_engagement_data.sort_values(by='likesCount', ascending=False).head(10)
-
-    fig_author_engagement = px.bar(
-        data_frame=author_engagement_data,
-        x='authorFullName',
-        y='likesCount',
-        title='Author Engagement',
-        labels={'likesCount': 'Avg Likes per Post', 'authorFullName': 'Author'},
-        text='likesCount'  
-    )
-    
-    fig_author_engagement.update_traces(texttemplate='%{text:.2s}', textposition='inside')
-    st.plotly_chart(fig_author_engagement, use_container_width=True)
-
-with col2:
-    # Category Distribution
-    fig_category_distribution = px.pie(
-        data_frame=data_filtered,
-        names='category',
-        title='Category Distribution',
-    )
-    st.plotly_chart(fig_category_distribution, use_container_width=True)
-
-# Activity Heatmap by Day and Hour
-data_filtered['weekday'] = data_filtered['date'].dt.day_name()
-data_filtered['hour'] = data_filtered['date'].dt.hour
-
-heatmap_data = data_filtered.groupby(['weekday', 'hour']).size().reset_index(name='posts_count')
-
-fig_heatmap = px.density_heatmap(
-    data_frame=heatmap_data,
-    x='hour',
-    y='weekday',
-    z='posts_count',
-    nbinsx=24,
-    category_orders={"weekday": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]},
-    title='Activity Heatmap by Day and Hour',
-    labels={'posts_count': 'Posts', 'hour': 'Hour of the Day', 'weekday': 'Day of the Week'},
-    height=400
-)
-fig_heatmap.update_xaxes(tickmode='linear', tick0=0, dtick=1)
-st.plotly_chart(fig_heatmap, use_container_width=True)
-    
+    data_filtered = data
+     
 # Show table
 st.dataframe(data_filtered[['authorFullName',
                             'category', 
@@ -189,6 +99,15 @@ st.dataframe(data_filtered[['authorFullName',
                             'text': 'Post'
                             },
             use_container_width=True, hide_index=True)
+
+
+# Category Distribution
+fig_category_distribution = px.pie(
+    data_frame=data_filtered,
+    names='category',
+    title='Category Distribution',
+)
+st.plotly_chart(fig_category_distribution, use_container_width=True)
 
 # Wordcloud
 keywords_filtered = keywords[keywords['authorFullName'] == selected_author] if selected_author != 'All' else keywords[keywords['cnt'] > 3]
@@ -209,17 +128,110 @@ plt.imshow(wordcloud_array, interpolation='bilinear')
 plt.axis('off')
 st.pyplot(plt)
 
+with st.expander("More data"):
+    # Metrics
+    total_posts = len(data_filtered)
+    avg_likes = data_filtered['likesCount'].mean() if total_posts > 0 else 0
+    avg_comments = data_filtered['commentsCount'].mean() if total_posts > 0 else 0
+
+    total_posts_all = len(data)
+    avg_likes_all = data['likesCount'].mean() if total_posts > 0 else 0
+    avg_comments_all = data['commentsCount'].mean() if total_posts > 0 else 0
+
+    _, col1, col2, col3, _ = st.columns(5)
+    col1.metric("**📨 # of Posts**", total_posts)
+    col2.metric("**👍🏻 Avg Likes**", f"{avg_likes:.2f}", delta=calculate_delta(avg_likes, avg_likes_all))
+    col3.metric("**💬 Avg Comments**", f"{avg_comments:.2f}", delta=calculate_delta(avg_comments, avg_comments_all))
+
+
+    col1, col2 = st.columns([2, 3], gap='medium')
+    with col1:
+        # Author Engagement
+        author_engagement_data = data_filtered.groupby('authorFullName').agg({'likesCount': 'mean'}).reset_index()
+        author_engagement_data = author_engagement_data.sort_values(by='likesCount', ascending=False).head(10)
+
+        fig_author_engagement = px.bar(
+            data_frame=author_engagement_data,
+            x='authorFullName',
+            y='likesCount',
+            title='Author Engagement',
+            labels={'likesCount': 'Avg Likes per Post', 'authorFullName': 'Author'},
+            text='likesCount'  
+        )
+        
+        fig_author_engagement.update_traces(texttemplate='%{text:.2s}', textposition='inside')
+        st.plotly_chart(fig_author_engagement, use_container_width=True)
+    
+    with col2:
+        # Activity Heatmap by Day and Hour
+        data_filtered['weekday'] = data_filtered['date'].dt.day_name()
+        data_filtered['hour'] = data_filtered['date'].dt.hour
+
+        heatmap_data = data_filtered.groupby(['weekday', 'hour']).size().reset_index(name='posts_count')
+
+        fig_heatmap = px.density_heatmap(
+            data_frame=heatmap_data,
+            x='hour',
+            y='weekday',
+            z='posts_count',
+            nbinsx=24,
+            category_orders={"weekday": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]},
+            title='Activity Heatmap by Day and Hour',
+            labels={'posts_count': 'Posts', 'hour': 'Hour of the Day', 'weekday': 'Day of the Week'},
+            height=400
+        )
+        fig_heatmap.update_xaxes(tickmode='linear', tick0=0, dtick=1)
+        st.plotly_chart(fig_heatmap, use_container_width=True)
+       
+
 # Gemini content analysis
-gemini_html = f'<div style="display: flex; justify-content: center;"><img src="data:image/png;base64,{base64.b64encode(open(keboola_gemini, "rb").read()).decode()}" style="width: 40px; margin-top: 20px; margin-bottom: 10px;"></div>'
+gemini_html = f'<div style="display: flex; justify-content: center;"><img src="data:image/png;base64,{base64.b64encode(open(keboola_gemini, "rb").read()).decode()}" style="width: 40px; margin-top: 30px; margin-bottom: 10px;"></div>'
 st.markdown(f"{gemini_html}", unsafe_allow_html=True)
 
 data_gemini = data_filtered.loc[:, ['category', 'text', 'likesCount', 'commentsCount', 'date']]
+json_data = data_gemini.to_json(orient='records')
 
-_, col, _ = st.columns(3)
+prompt_normal = f"""
+You are given a data in JSON format that contains the author's LinkedIn posts in different categories and engagement metrics for each post, including the number of likes and comments, and the date of posting.
+
+Analyze the data provided to identify patterns and insights that can inform the person's content strategy.
+
+Expected outcome should be CONCISE and include:
+– Summary of Findings: A brief report summarizing key insights and patterns from the data, including any correlations or anomalies found.
+– Actionable Recommendations: Specific, data-driven suggestions for improving the content strategy to increase overall engagement.
+
+Data: 
+{json_data}
+"""
+
+prompt_fun = f"""
+You are given a data in JSON format that contains the author's LinkedIn posts in different categories and engagement metrics for each post, including the number of likes and comments, and the date of posting.
+
+Analyze the data provided to identify patterns and insights that can inform the person's content strategy, but do it in fun way, you can be satirical, and make a little fun of it.
+
+Expected outcome should be brief and include:
+– Summary of Findings: A concise report summarizing key insights and patterns from the data, including any correlations or anomalies found.
+– Actionable Recommendations: Specific, data-driven suggestions for improving the content strategy to increase overall engagement.
+
+Data: 
+{json_data}
+"""
+
+st.sidebar.markdown("""
+<div style="text-align: center;">
+    <h1>Analyze the content strategy with Gemini</h1>
+    <br><p>Choose your style:</p>
+</div>
+""", unsafe_allow_html=True)
+col1, col2 = st.columns(2)
+
 if selected_author != 'All':
-    if col.button("Analyze the content strategy with Gemini", use_container_width=True):
-        json_data = data_gemini.to_json(orient='records')
-        generated_text = generate(json_data)
+    if col1.button("Be serious 👨🏻‍💼", use_container_width=True):
+        generated_text = generate(prompt_normal)
+        st.write(generated_text)
+
+    if col2.button("Make it fun 🕺🏻", use_container_width=True):
+        generated_text = generate(prompt_fun)
         st.write(generated_text)
 else:
     st.info("Select a specific author to analyze the content strategy with Gemini.")
