@@ -204,7 +204,7 @@ st.markdown("""
 <div style="text-align: left;">
     <h4>Analyze the content strategy with Gemini</h4>
     Choose your style:
-    <br>
+    <br><br>
 </div>
 """, unsafe_allow_html=True)
 
@@ -212,11 +212,13 @@ col1, col2 = st.columns(2)
 
 if selected_author != 'All':
     if col1.button("Be serious 👨🏻‍💼", use_container_width=True):
-        generated_text = generate(prompt_normal)
+        with st.spinner('Analyzing your posts... Please wait 👀'):
+            generated_text = generate(prompt_normal)
         st.write(generated_text)
 
     if col2.button("Make it fun 🕺🏻", use_container_width=True):
-        generated_text = generate(prompt_fun)
+        with st.spinner('Analyzing your posts... Please wait 👀'):
+            generated_text = generate(prompt_fun)
         st.write(generated_text)
 else:
     st.info("Select a specific author to analyze the content strategy with Gemini.")
