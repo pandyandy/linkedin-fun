@@ -111,7 +111,7 @@ st.plotly_chart(fig_category_distribution, use_container_width=True)
 
 # Wordcloud
 keywords_filtered = keywords[keywords['authorFullName'] == selected_author] if selected_author != 'All' else keywords[keywords['cnt'] > 3]
-word_freq = keywords_filtered.set_index('KEYWORD')['cnt'].to_dict()
+word_freq = keywords_filtered.set_index('keyword')['cnt'].to_dict()
 colormap = mcolors.ListedColormap(['#0069c8', '#85c9fe', '#ff2a2b', '#feaaab', '#2bb19d'])
 
 title_text = "Keyword Frequency"
