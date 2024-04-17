@@ -128,7 +128,7 @@ plt.imshow(wordcloud_array, interpolation='bilinear')
 plt.axis('off')
 st.pyplot(plt)
 
-with st.expander("More data"):
+with st.expander("More data:"):
     # Metrics
     total_posts = len(data_filtered)
     avg_likes = data_filtered['likesCount'].mean() if total_posts > 0 else 0
