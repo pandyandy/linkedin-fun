@@ -120,7 +120,7 @@ if selected_author != 'All':
 
 st.markdown(f"<br>**{title_text}**", unsafe_allow_html=True)
 
-wordcloud = WordCloud(width=1000, height=500, background_color=None, mode="RGBA", colormap=colormap).generate_from_frequencies(word_freq)
+wordcloud = WordCloud(width=800, height=400, background_color=None, mode="RGBA", colormap=colormap).generate_from_frequencies(word_freq)
 wordcloud_array = wordcloud.to_array()
 
 plt.figure(figsize=(10, 5), frameon=False)
