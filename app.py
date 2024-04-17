@@ -44,9 +44,9 @@ def generate(content):
     return "".join(response.text for response in responses)
 
 # Logos
-keboola_logo = "/data/in/files/1112932287_logo.png"
-qr_code = "/data/in/files/1112988135_qr_code.png"
-keboola_gemini = "/data/in/files/1112932549_keboola_gemini.png"
+keboola_logo = "/data/in/files/282503_logo.png"
+#qr_code = "/data/in/files/1112988135_qr_code.png"
+keboola_gemini = "/data/in/files/282498_keboola_gemini.png"
 
 # Load the data
 data = pd.read_csv('/data/in/tables/linkedin_posts_categorized.csv')
@@ -59,14 +59,14 @@ allowed_categories = ["Educational", "Promotional", "Networking", "News and Upda
 data = data[data['category'].isin(allowed_categories) & (data['text'].str.len() >= 3)]
 
 # Sidebar
-st.sidebar.markdown("""
-<div style="text-align: center;">
-    <h1>GCP Data Cloud Live</h1>
-    <br><p>Scan the QR code to see yourself on the dashboard:</p>
-</div>
-""", unsafe_allow_html=True)
-qr_html = f'<div style="display: flex; justify-content: center;"><img src="data:image/png;base64,{base64.b64encode(open(qr_code, "rb").read()).decode()}" style="width: 200px;"></div>'
-st.sidebar.markdown(f'{qr_html}', unsafe_allow_html=True)
+#st.sidebar.markdown("""
+#<div style="text-align: center;">
+#    <h1>GCP Data Cloud Live</h1>
+#    <br><p>Scan the QR code to see yourself on the dashboard:</p>
+#</div>
+#""", unsafe_allow_html=True)
+#qr_html = f'<div style="display: flex; justify-content: center;"><img src="data:image/png;base64,{base64.b64encode(open(qr_code, "rb").read()).decode()}" style="width: 200px;"></div>'
+#st.sidebar.markdown(f'{qr_html}', unsafe_allow_html=True)
 #st.sidebar.markdown('<div style="text-align: center"><br><br><br>Get in touch with Keboola: <a href="https://bit.ly/cxo-summit-2024">https://bit.ly/cxo-summit-2024</a>#replace</div>', unsafe_allow_html=True)
 
 # Title and Filters
