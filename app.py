@@ -168,7 +168,7 @@ with st.expander("More data:"):
     
 
 # Gemini content analysis
-gemini_html = f'<div style="display: flex; justify-content: center;"><img src="data:image/png;base64,{base64.b64encode(open(keboola_gemini, "rb").read()).decode()}" style="width: 40px; margin-top: 30px; margin-bottom: 10px;"></div>'
+gemini_html = f'<div style="display: flex; justify-content: flex-end;"><img src="data:image/png;base64,{base64.b64encode(open(keboola_gemini, "rb").read()).decode()}" style="width: 60px; margin-top: 30px;"></div>'
 st.markdown(f"{gemini_html}", unsafe_allow_html=True)
 
 data_gemini = data_filtered.loc[:, ['category', 'text', 'likesCount', 'commentsCount', 'date']]
@@ -201,9 +201,9 @@ Data:
 """
 
 st.markdown("""
-<div style="text-align: center;">
-    <h3>Analyze the content strategy with Gemini</h3>
-    <h4>Choose your style:</h4>
+<div style="text-align: left;">
+    <h4>Analyze the content strategy with Gemini</h4>
+    Choose your style:
     <br>
 </div>
 """, unsafe_allow_html=True)
