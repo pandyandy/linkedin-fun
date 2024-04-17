@@ -207,13 +207,12 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-col1, col2 = st.columns(2)
-
 if selected_author != 'All':
     st.markdown("""
     Choose your style:
     <br><br>
-    """)
+    """, unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
     if col1.button("Be serious 👨🏻‍💼", use_container_width=True):
         with st.spinner('Analyzing your posts... Please wait 👀'):
             generated_text = generate(prompt_normal)
