@@ -55,6 +55,7 @@ keywords = pd.read_csv('/data/in/tables/keywords_grouped.csv')
 # Data prep
 data.rename(columns={'result_value': 'category', 'postedAtTimestamp': 'date'}, inplace=True)
 data['date'] = pd.to_datetime(data['date'].astype(int) / 1000, unit='s')
+data = data[data['authorFullName'] != 'Liviu Gherman']
 allowed_categories = ["Educational", "Promotional", "Networking", "News and Updates", "Inspirational"]
 data = data[data['category'].isin(allowed_categories) & (data['text'].str.len() >= 3)]
 
@@ -203,14 +204,16 @@ Data:
 st.markdown("""
 <div style="text-align: left;">
     <h4>Analyze the content strategy with Gemini</h4>
-    Choose your style:
-    <br><br>
 </div>
 """, unsafe_allow_html=True)
 
 col1, col2 = st.columns(2)
 
 if selected_author != 'All':
+    st.markdown("""
+    Choose your style:
+    <br><br>
+    """)
     if col1.button("Be serious 👨🏻‍💼", use_container_width=True):
         with st.spinner('Analyzing your posts... Please wait 👀'):
             generated_text = generate(prompt_normal)
