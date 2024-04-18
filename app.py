@@ -191,7 +191,7 @@ Data:
 prompt_fun = f"""
 You are given a data in JSON format that contains the author's LinkedIn posts in different categories and engagement metrics for each post, including the number of likes and comments, and the date of posting.
 
-Analyze the data provided to identify patterns and insights that can inform the person's content strategy. Do it in fun way, you can be satirical, and make a little fun of it. Use some emojis and slang words, but not too much.
+Analyze the data provided to identify patterns and insights that can inform the person's content strategy – be satirical, you can make a little fun of it. You can use some emojis and slang words, too.
 
 Expected outcome should be brief and include:
 – Summary of Findings: A concise report summarizing key insights and patterns from the data, including any correlations or anomalies found.
@@ -210,7 +210,7 @@ st.markdown("""
 if selected_author != 'All':
     st.markdown("""
     Choose your style:
-    <br><br>
+    <br>
     """, unsafe_allow_html=True)
     col1, col2 = st.columns(2)
     if col1.button("Be serious 👨🏻‍💼", use_container_width=True):
