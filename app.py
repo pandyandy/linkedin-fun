@@ -49,8 +49,8 @@ keboola_logo = "/data/in/files/282503_logo.png"
 keboola_gemini = "/data/in/files/282498_keboola_gemini.png"
 
 # Load the data
-data = pd.read_csv('/data/in/tables/linkedin_posts_categorized.csv')
-keywords = pd.read_csv('/data/in/tables/keywords_grouped.csv')
+data = pd.read_csv('/data/in/tables/linkedin_posts_categorized_final.csv')
+keywords = pd.read_csv('/data/in/tables/keywords_grouped_final.csv')
 
 # Data prep
 data.rename(columns={'result_value': 'category', 'postedAtTimestamp': 'date'}, inplace=True)
